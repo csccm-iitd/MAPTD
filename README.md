@@ -5,11 +5,28 @@ Learning to Predict and Control with Sparse Model Discovery and Deep Temporal Di
 ![MAPTD](/media/MAPTD.jpg)
 
 ## MAPTD agent taking action to actively control vibration of mechanical systems
-![Beam](/media/Beam_control_2d.gif)
-![Structure](/media/STR_control_2d.gif)
+<p align="center">
+  <img src="/media/Beam_control_2d.gif" width="75%" />
+  <figcaption>MAPTD agent controlling deflection of a cantilever beam</figcaption>
+</p>
+
+<p align="center">
+  <img src="/media/STR_control_2d.gif" width="75%" />
+  <figcaption>MAPTD agent controlling wind-induced vibration</figcaption>
+</p>
 
 ## Inference time comparison between model-based control algorithms
-<img src="/media/beam_inference_time.png" width="425"/> <img src="/media/STR_inference_time.png" width="425"/>)
+<div style="display: flex;">
+  <figure>
+    <img src="/media/beam_inference_time.png" width="49%" />
+    <figcaption>Cantilever beam</figcaption>
+  </figure>
+  <figure>
+    <img src="/media/STR_inference_time.png" width="49%" />
+    <figcaption>76DOF skyscraper</figcaption>
+  </figure>
+</div>
+
 
 ## File description
 ```
