@@ -1,11 +1,16 @@
 # MAPTD-Model-Agnostic-Predictive-Temperal-Difference
 Learning to Predict and Control with Sparse Model Discovery and Deep Temporal Difference Reinforcement Learning
 
-## What are we trying to do?
-![WNO](/media/WNN_Neurips_INAE_Objective.png)
+## Architecture
+![MAPTD](/media/MAPTD.jpg)
 
-## NCWNO architecture in a glimpse.
-![WNO](/media/ncwno.jpg)
+## MAPTD agent taking action to actively control vibration of mechanical systems
+![Beam](/media/Beam_control_2d.gif)
+![Structure](/media/STR_control_2d.gif)
+
+## Inference time comparison between model-based control algorithms
+![Beam](/media/beam_inference_time.png)
+![Structure](/media/STR_inference_time.png)
 
 ## File description
 ```
