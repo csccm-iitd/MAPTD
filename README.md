@@ -9,8 +9,7 @@ Learning to Predict and Control with Sparse Model Discovery and Deep Temporal Di
 ![Structure](/media/STR_control_2d.gif)
 
 ## Inference time comparison between model-based control algorithms
-![Beam](/media/beam_inference_time.png)
-![Structure](/media/STR_inference_time.png)
+<img src="/media/beam_inference_time.png" width="425"/> <img src="/media/STR_inference_time.png" width="425"/>)
 
 ## File description
 ```
