@@ -16,7 +16,22 @@ Learning to Predict and Control with Sparse Model Discovery and Deep Temporal Di
 ```
 📂 src
   |_📁 EQD            # Equation discovery files
-  |_📁 MAPTD          # MAPTD algorithm with numerical predictor
+  |_📂 MAPTD          # MAPTD algorithm with numerical predictor
+    |_📁 algorithm             # contains main files for reinforcement learning
+    |_📁 cfgs                  # contains yaml files to configure the test examples
+    |_📁 data                  # contains model information of 76DOF structure
+    |_📁 logs                  # contains trained agents and logs
+    |_📁 results               # directory to save trajectories
+    |_📄 cfg.py                # file to purge yaml files
+    |_📄 dynamics_gym.py       # script for accumulating all the environments
+    |_📄 env_beam.py           # cantilever beam environment setup
+    |_📄 envs.py               # environment wrapper
+    |_📄 env_tallstorey.py     # 76DOF environment setup
+    |_📄 logger.py             # file to log training information
+    |_📄 train_maptd_76dof.py  # training script
+    |_📄 train_maptd_beam.py   # training script
+    |_📄 test_76dof.py         # testing script
+    |_📄 test_beam.py          # testing script
   |_📁 MAPTD_hybrid   # MAPTD algorithm with hybrid Real2Sim strategy
   |_📁 MAPTD_NN       # MAPTD algorithm with ANN as world model
   |_📁 MAPTD_oml      # MAPTD using hybrid Real2Sim strategy with online NO update
