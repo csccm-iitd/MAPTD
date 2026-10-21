@@ -1,6 +1,12 @@
 # MAPTD-Model-Agnostic-Predictive-Temperal-Difference
 Learning to Predict and Control with Sparse Model Discovery and Deep Temporal Difference Reinforcement Learning
 
+> [!NOTE]
+> This Code Repo is updated on Oct 20, 27 to address some issues with the Physics-environments of the systems.
+> The Control bounds are updated, and reward regularization weights are updated to match real-world conditions.
+> The MAPTD-agent's action space is bounded to [-1,1], which is then scaled to the appropriate scale in environments.
+
+
 ## Architecture
 ![MAPTD](/media/MAPTD.jpg)
 
