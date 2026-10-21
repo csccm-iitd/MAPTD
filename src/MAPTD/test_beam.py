@@ -29,18 +29,18 @@ def set_seed(seed):
 
 
 def evaluate(env, agent, num_episodes, step, env_step):
-    """Evaluate a trained agent."""
-    episode_rewards = []
-    for i in range(num_episodes):
-        obs, done, ep_reward, t = env.reset(), False, 0, 0
-        
-        while not done:
-            action = agent.plan(obs, force_t=t, eval_mode=True, step=step, t0=t==0)
-            obs, reward, done, _ = env.step(action.cpu().numpy())
-            ep_reward += reward
-            t += 1
-        episode_rewards.append(ep_reward)
-    return np.nanmean(episode_rewards)
+	"""Evaluate a trained agent."""
+	episode_rewards = []
+	for i in range(num_episodes):
+		obs, done, ep_reward, t = env.reset(), False, 0, 0
+
+		while not done:
+			action = agent.plan(obs, force_t=t, eval_mode=True, step=step, t0=t==0)
+			obs, reward, done, _ = env.step(action.cpu().numpy())
+			ep_reward += reward
+			t += 1
+		episode_rewards.append(ep_reward)
+	return np.nanmean(episode_rewards)
 
 
 # -------------------------------------------------
@@ -67,25 +67,25 @@ actions_std = []
 time = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    print('Case: Controlled --> Time step: {}'.format(t))
-    action, action_std, time_ = agent.plan(obs, force_t=t, eval_mode=True, step=0, t0=t==0)
-    obs, reward, done, _ = env.step(action.cpu().numpy())
-    frames.append(obs)
-    rewards.append(reward)
-    actions.append(action.cpu().numpy())
-    actions_std.append(action_std.cpu().numpy())
-    time.append(time_)
-    t += 1
+	print('Case: Controlled --> Time step: {}'.format(t))
+	action, action_std, time_ = agent.plan(obs, force_t=t, eval_mode=True, step=0, t0=t==0)
+	obs, reward, done, _ = env.step(action.cpu().numpy())
+	frames.append(obs)
+	rewards.append(reward)
+	actions.append(action.cpu().numpy())
+	actions_std.append(action_std.cpu().numpy())
+	time.append(time_)
+	t += 1
 
 disp = np.stack(( frames ))[:, 0:200:2]
 
 frames_true = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    print('Case: UNcontrolled --> Time step: {}'.format(t))
-    obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
-    frames_true.append(obs)
-    t += 1
+	print('Case: UNcontrolled --> Time step: {}'.format(t))
+	obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
+	frames_true.append(obs)
+	t += 1
 
 true_disp = np.stack(( frames_true ))[:, 0:200:2]
 actions = np.stack((actions))
@@ -100,23 +100,29 @@ plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.size'] = 14
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
+# Physical time: each agent step holds the action for action_repeat env steps of dt
+dt_agent = cfg.action_repeat * env.unwrapped.dt
+t_sec = np.arange(1, len(disp)+1) * dt_agent
+band = 0.05 * env.unwrapped.init_amp     # +-5% of the initial tip deflection
+
 fig1, ax = plt.subplots(nrows=2, ncols=1, figsize=(10,6), dpi=100,
                         gridspec_kw={'height_ratios': [1,0.5]})
 plt.subplots_adjust(hspace=0.5)
 
 ax[0].set_title('Profile of Displacement', fontweight='bold')
-im = ax[0].imshow(disp, aspect='auto', origin='lower', cmap='jet')
+im = ax[0].imshow(disp, aspect='auto', origin='lower', cmap='jet',
+                  extent=[0, 1, t_sec[0]-dt_agent/2, t_sec[-1]+dt_agent/2])
 plt.colorbar(im, ax=ax[0], pad=0.02)
 ax[0].set_xlabel('Space (x)')
 ax[0].set_ylabel('Time (sec)')
 
 ax[1].set_title('Displacement evolution at the Free end')
-ax[1].plot(disp[:,-1], color='b', label='Controlled')
-ax[1].plot(true_disp[:,-1], color='r', label='Uncontrolled')
+ax[1].plot(t_sec, disp[:,-1], color='b', label='Controlled')
+ax[1].plot(t_sec, true_disp[:,-1], color='r', label='Uncontrolled')
 ax[1].set_ylabel('$u(x=1,t)$')
 ax[1].set_xlabel('Time (sec)')
-ax[1].axhline(y=0.1, color='grey', linestyle='--')
-ax[1].axhline(y=-0.1, color='grey', linestyle='--')
+ax[1].axhline(y=band, color='grey', linestyle='--')
+ax[1].axhline(y=-band, color='grey', linestyle='--')
 ax[1].grid(True, alpha=0.25)
 ax[1].legend(ncol=2, loc=4, labelspacing=0.1, columnspacing=0.75, handletextpad=0.2,
              borderaxespad=0.15, borderpad=0.25)
@@ -132,4 +138,4 @@ plt.show()
 #                                                  'actions':actions,
 #                                                  'actions_std':actions_std})
 
-# sp.io.savemat('results/beam_control_time.mat', mdict={'time':time}) 
+# sp.io.savemat('results/beam_control_time.mat', mdict={'time':time})
