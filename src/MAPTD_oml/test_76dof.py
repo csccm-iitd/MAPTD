@@ -32,21 +32,21 @@ def set_seed(seed):
 
 
 def evaluate(env, agent, num_episodes, step, env_step, video):
-    """Evaluate a trained agent and optionally save a video."""
-    episode_rewards = []
-    for i in range(num_episodes):
-        obs, done, ep_reward, t = env.reset(), False, 0, 0
-        
-        if video: video.init(env, enabled=(i==0))
-        while not done:
-            action = agent.plan(obs, force_t=t, eval_mode=True, step=step, t0=t==0)
-            obs, reward, done, _ = env.step(action.cpu().numpy())
-            ep_reward += reward
-            if video: video.record(env)
-            t += 1
-        episode_rewards.append(ep_reward)
-        if video: video.save(env_step)
-    return np.nanmean(episode_rewards)
+	"""Evaluate a trained agent and optionally save a video."""
+	episode_rewards = []
+	for i in range(num_episodes):
+		obs, done, ep_reward, t = env.reset(), False, 0, 0
+
+		if video: video.init(env, enabled=(i==0))
+		while not done:
+			action = agent.plan(obs, force_t=t, eval_mode=True, step=step, t0=t==0)
+			obs, reward, done, _ = env.step(action.cpu().numpy())
+			ep_reward += reward
+			if video: video.record(env)
+			t += 1
+		episode_rewards.append(ep_reward)
+		if video: video.save(env_step)
+	return np.nanmean(episode_rewards)
 
 
 # -------------------------------------------------
@@ -73,15 +73,15 @@ actions_std = []
 time = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    print('Case: Controlled --> Time step: {}'.format(t))
-    action, action_std, time_ = agent.plan(obs, force_t=t, eval_mode=True, step=0, t0=t==0)
-    obs, reward, done, _ = env.step(action.cpu().numpy())
-    frames.append(obs)
-    rewards.append(reward)
-    actions.append(action.cpu().numpy())
-    actions_std.append(action_std.cpu().numpy())
-    time.append(time_)
-    t += 1
+	print('Case: Controlled --> Time step: {}'.format(t))
+	action, action_std, time_ = agent.plan(obs, force_t=t, eval_mode=True, step=0, t0=t==0)
+	obs, reward, done, _ = env.step(action.cpu().numpy())
+	frames.append(obs)
+	rewards.append(reward)
+	actions.append(action.cpu().numpy())
+	actions_std.append(action_std.cpu().numpy())
+	time.append(time_)
+	t += 1
 
 xt_controlled = np.stack(( frames ))
 xt_cd = xt_controlled[:, :env.Ne]
@@ -96,10 +96,10 @@ time = np.stack((time))
 frames_true = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    print('Case: UNcontrolled --> Time step: {}'.format(t))
-    obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
-    frames_true.append(obs)
-    t += 1
+	print('Case: UNcontrolled --> Time step: {}'.format(t))
+	obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
+	frames_true.append(obs)
+	t += 1
 
 xt_uncontrolled = np.stack(( frames_true ))
 xt_ud = xt_uncontrolled[:, :env.Ne]
@@ -113,26 +113,26 @@ plt.rcParams['font.size'] = 14
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 floor = [4,13,17,22]
-    
+
 t = np.arange(0,1,0.01)
 
 figure1, ax = plt.subplots(nrows=len(floor), ncols=2, figsize =(16,10), dpi=100)
 plt.subplots_adjust(hspace=0.35)
 
 for i in range(len(floor)):
-    ax[i,0].plot(xt_ud[:, floor[i]], color='r', label='True')
-    ax[i,0].plot(xt_cd[:, floor[i]], linestyle='--', label='Controlled')
-    if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
-    ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
-    ax[i,0].grid(True, alpha=0.25) 
-    ax[i,0].legend()
-    
-    ax[i,1].plot(xt_uv[:, floor[i]], color='r', label='True')
-    ax[i,1].plot(xt_cv[:, floor[i]], linestyle='--', label='Controlled')
-    if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
-    ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
-    ax[i,1].grid(True, alpha=0.25) 
-    ax[i,1].legend()
+	ax[i,0].plot(xt_ud[:, floor[i]], color='r', label='True')
+	ax[i,0].plot(xt_cd[:, floor[i]], linestyle='--', label='Controlled')
+	if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
+	ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
+	ax[i,0].grid(True, alpha=0.25)
+	ax[i,0].legend()
+
+	ax[i,1].plot(xt_uv[:, floor[i]], color='r', label='True')
+	ax[i,1].plot(xt_cv[:, floor[i]], linestyle='--', label='Controlled')
+	if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
+	ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
+	ax[i,1].grid(True, alpha=0.25)
+	ax[i,1].legend()
 
 ax[0,0].set_title('Displacement')
 ax[0,1].set_title('Velocity')

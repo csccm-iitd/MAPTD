@@ -2,10 +2,8 @@
 task: structure-Skyscraper_rom
 action_repeat: 4
 discount: 0.99
-episode_length: 200/${action_repeat}
-train_steps: 40000/${action_repeat}
-lb: -25000
-ub: 25000
+episode_length: 3000/${action_repeat}
+train_steps: 150000/${action_repeat}
 
 # planning
 iterations: 6

@@ -4,8 +4,6 @@ action_repeat: 4
 discount: 0.99
 episode_length: 400/${action_repeat}
 train_steps: 100000/${action_repeat}
-lb: -25000
-ub: 25000
 
 # planning
 iterations: 6

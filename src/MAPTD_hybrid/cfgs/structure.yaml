@@ -2,10 +2,8 @@
 task: structure-Skyscraper
 action_repeat: 4
 discount: 0.99
-episode_length: 400/${action_repeat}
+episode_length: 3000/${action_repeat}
 train_steps: 150000/${action_repeat}
-lb: -2500
-ub: 2500
 
 # planning
 iterations: 6
