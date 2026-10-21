@@ -6,6 +6,7 @@ Learning to Predict and Control with Sparse Model Discovery and Deep Temporal Di
 > The Control bounds are updated, and reward regularization weights are updated to match real-world conditions.
 > The MAPTD-agent's action space is bounded to [-1,1], which is then scaled to the appropriate scale in environments.
 
+
 > [!WARNING]
 > As a result, the values will not match the paper, but the environments can be explored faster.
 
