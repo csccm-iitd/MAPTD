@@ -32,21 +32,21 @@ def set_seed(seed):
 
 
 def evaluate(env, agent, num_episodes, step, env_step, video):
-    """Evaluate a trained agent and optionally save a video."""
-    episode_rewards = []
-    for i in range(num_episodes):
-        obs, done, ep_reward, t = env.reset(), False, 0, 0
-        
-        if video: video.init(env, enabled=(i==0))
-        while not done:
-            action = agent.plan(obs, eval_mode=True, step=step, t0=t==0)
-            obs, reward, done, _ = env.step(action.cpu().numpy())
-            ep_reward += reward
-            if video: video.record(env)
-            t += 1
-        episode_rewards.append(ep_reward)
-        if video: video.save(env_step)
-    return np.nanmean(episode_rewards)
+	"""Evaluate a trained agent and optionally save a video."""
+	episode_rewards = []
+	for i in range(num_episodes):
+		obs, done, ep_reward, t = env.reset(), False, 0, 0
+
+		if video: video.init(env, enabled=(i==0))
+		while not done:
+			action = agent.plan(obs, eval_mode=True, step=step, t0=t==0)
+			obs, reward, done, _ = env.step(action.cpu().numpy())
+			ep_reward += reward
+			if video: video.record(env)
+			t += 1
+		episode_rewards.append(ep_reward)
+		if video: video.save(env_step)
+	return np.nanmean(episode_rewards)
 
 
 # -------------------------------------------------
@@ -75,25 +75,25 @@ actions_std = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 time = []
 while not done:
-    print('Case: UNcontrolled --> Time step: {}'.format(t))
-    action, action_std, time_ = agent.plan(obs, eval_mode=True, step=0, t0=t==0)
-    obs, reward, done, _ = env.step(action.cpu().numpy())
-    frames.append(obs)
-    rewards.append(reward)
-    actions.append(action.cpu().numpy())
-    actions_std.append(action_std.cpu().numpy())
-    time.append(time_)
-    t += 1
+	print('Case: Controlled --> Time step: {}'.format(t))
+	action, action_std, time_ = agent.plan(obs, eval_mode=True, step=0, t0=t==0)
+	obs, reward, done, _ = env.step(action.cpu().numpy())
+	frames.append(obs)
+	rewards.append(reward)
+	actions.append(action.cpu().numpy())
+	actions_std.append(action_std.cpu().numpy())
+	time.append(time_)
+	t += 1
 
 disp = np.stack(( frames ))[:, 0:200:2]
 
 frames_true = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    print('Case: UNcontrolled --> Time step: {}'.format(t))
-    obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
-    frames_true.append(obs)
-    t += 1
+	print('Case: UNcontrolled --> Time step: {}'.format(t))
+	obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
+	frames_true.append(obs)
+	t += 1
 
 true_disp = np.stack(( frames_true ))[:, 0:200:2]
 actions = np.stack((actions))
@@ -141,5 +141,5 @@ plt.show()
 #                                                'rewards':rewards,
 #                                                'actions':actions})
 
-# sp.io.savemat('results/beam_tdmpc_time.mat', mdict={'time':time}) 
+# sp.io.savemat('results/beam_tdmpc_time.mat', mdict={'time':time})
 

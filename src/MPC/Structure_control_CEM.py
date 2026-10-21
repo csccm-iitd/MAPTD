@@ -22,7 +22,7 @@ import env_skyscraper
 import utils_mpc
 from cem import CEM
 
-# %% Response simulation 
+# %% Response simulation
 T, dt = 4, 1e-2
 Nt = int(T/dt)
 env = env_skyscraper.Skyscraper_rom(T=T, dt=dt, forced=True)
@@ -30,7 +30,7 @@ env = env_skyscraper.Skyscraper_rom(T=T, dt=dt, forced=True)
 # Generate the response:
 t, xt = env.solve()
 
-## %%  
+## %%
 #floor = [4,13,17,22]
 #
 #figure1, ax = plt.subplots(nrows=len(floor), ncols=2, figsize =(16,10), dpi=100)
@@ -40,12 +40,12 @@ t, xt = env.solve()
 #    ax[i,0].plot(t, xt[0, floor[i],:], label='DOF:{}th'.format(floor[i]))
 #    if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
 #    ax[i,0].set_ylabel('$X({})$'.format(floor[i]))
-#    ax[i,0].grid(True, alpha=0.25) 
-#    
+#    ax[i,0].grid(True, alpha=0.25)
+#
 #    ax[i,1].plot(t, xt[1, floor[i],:], label='DOF:{}th'.format(floor[i]))
 #    if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
 #    ax[i,1].set_ylabel('$X({})$'.format(floor[i]))
-#    ax[i,1].grid(True, alpha=0.25) 
+#    ax[i,1].grid(True, alpha=0.25)
 #
 #plt.suptitle('Response of 76 DOF Skyscraper', y=0.94)
 #plt.show()
@@ -60,9 +60,9 @@ Force  = env.force_fun
 Intensity = env.intensity
 
 D0n, V0n, A0n = env.reset()             # Initial condition
-uopt0  = np.zeros(env.phorizon * env.action_dim)  
+uopt0  = np.zeros(env.phorizon * env.action_dim)
 bounds = Bounds(env.LB, env.UB)
-   
+
 xHistory = D0n                                # Stores state history
 xdHistory = V0n                               # Stores state history
 xddHistory = A0n                              # Stores state history
@@ -71,40 +71,40 @@ fHistory = Intensity(u_ref = Force(0*dt))
 tHistory = 0                                  # Stores time history
 rHistory = env.D_ref                          # Stores reference
 
-agent = CEM(action_dim=env.action_dim, horizon=env.phorizon, num_samples=128, 
+agent = CEM(action_dim=env.action_dim, horizon=env.phorizon, num_samples=128,
             bounds=bounds, num_elites=64, iterations=20)
 
 time = []
 for run in range(int(CT/Ts) - 1):
-    t1 = default_timer()
-    if run * Ts > start: # control at every 10 step,
-        if run*Ts == start+Ts:
-            print('\n~~~~~~~~~~~ Control is activated ~~~~~~~~~~~\n')
-        
-        OBJFUN = lambda u: env.cost(action=u, states=(D0n, V0n, A0n), t=run,
+	t1 = default_timer()
+	if run * Ts > start: # control at every 10 step,
+		if run*Ts == start+Ts:
+			print('\n~~~~~~~~~~~ Control is activated ~~~~~~~~~~~\n')
+
+		OBJFUN = lambda u: env.cost(action=u, states=(D0n, V0n, A0n), t=run,
                                     old_action=uopt0[:env.action_dim])
-        # res = minimize(OBJFUN, uopt0, method='SLSQP', jac="2-point", bounds=bounds)
-        # uopt0 = res.x
-        uopt0 = agent.plan(OBJFUN, uopt0)
-    else:
-        uopt0 = np.zeros(env.phorizon * env.action_dim)
-    
-    D0n, V0n, A0n = env.step(states=(D0n,V0n,A0n), t=run, action=uopt0[:env.action_dim])
-    
-    error_d, error_v = utils_mpc.L2norm(D0n[-3:-1], V0n[-3:-1], rHistory[-3:-1])
-    
-    t2 = default_timer()
-    time.append(t2-t1)
-    print('Iteration-{}, Time-{:0.4f}, Error: Displacement: {:0.4f}, Velocity: {:0.4f}'.format(
+		# res = minimize(OBJFUN, uopt0, method='SLSQP', jac="2-point", bounds=bounds)
+		# uopt0 = res.x
+		uopt0 = agent.plan(OBJFUN, uopt0)
+	else:
+		uopt0 = np.zeros(env.phorizon * env.action_dim)
+
+	D0n, V0n, A0n = env.step(states=(D0n,V0n,A0n), t=run, action=uopt0[:env.action_dim])
+
+	error_d, error_v = utils_mpc.L2norm(D0n[-3:-1], V0n[-3:-1], rHistory[-3:-1])
+
+	t2 = default_timer()
+	time.append(t2-t1)
+	print('Iteration-{}, Time-{:0.4f}, Error: Displacement: {:0.4f}, Velocity: {:0.4f}'.format(
             run, t2-t1, error_d, error_v))
-    
-    # Store the history:
-    xHistory = np.column_stack((xHistory, D0n))
-    xdHistory = np.column_stack((xdHistory, V0n))
-    xddHistory = np.column_stack((xddHistory, A0n))
-    uHistory = np.column_stack((uHistory, uopt0[:env.action_dim]))
-    fHistory = np.column_stack((fHistory, Intensity(u_ref = Force(run*dt)) ))
-    tHistory = np.append(tHistory, run*Ts)
+
+	# Store the history:
+	xHistory = np.column_stack((xHistory, D0n))
+	xdHistory = np.column_stack((xdHistory, V0n))
+	xddHistory = np.column_stack((xddHistory, A0n))
+	uHistory = np.column_stack((uHistory, uopt0[:env.action_dim]))
+	fHistory = np.column_stack((fHistory, Intensity(u_ref = Force(run*dt)) ))
+	tHistory = np.append(tHistory, run*Ts)
 
 tT = default_timer()
 print('-- Run Complete -- Total Time-{}min.'.format((tT-t0)/60))
@@ -145,7 +145,7 @@ xtHistory = np.stack(( xHistory, xdHistory, xddHistory ))
 #plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 #
 #floor = [4,13,17,22]
-#    
+#
 #t = np.arange(0,1,0.01)
 #
 #figure1, ax = plt.subplots(nrows=len(floor), ncols=2, figsize =(16,10), dpi=100)
@@ -156,14 +156,14 @@ xtHistory = np.stack(( xHistory, xdHistory, xddHistory ))
 #    ax[i,0].plot(xt[0, floor[i], :], linestyle='--', label='True')
 #    if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
 #    ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
-#    ax[i,0].grid(True, alpha=0.25) 
+#    ax[i,0].grid(True, alpha=0.25)
 #    ax[i,0].legend()
-#    
+#
 #    ax[i,1].plot(xtHistory[1, floor[i], :], color='r', label='Controlled')
 #    ax[i,1].plot(xt[1, floor[i], :], linestyle='--', label='True')
 #    if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
 #    ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
-#    ax[i,1].grid(True, alpha=0.25) 
+#    ax[i,1].grid(True, alpha=0.25)
 #    ax[i,1].legend()
 #
 #ax[0,0].set_title('Displacement')
@@ -182,5 +182,5 @@ sio.savemat('results/structure_mpc_cem.mat', mdict={'xt':xt,
                                                 'tHistory':tHistory,
                                                 'rHistory':rHistory,
                                                 'time':(tT-t0),
-                                                'time_step':time}) 
+                                                'time_step':time})
 

@@ -90,7 +90,7 @@ class Flatten(nn.Module):
 	"""Flattens its input to a (batched) vector."""
 	def __init__(self):
 		super().__init__()
-		
+
 	def forward(self, x):
 		return x.view(x.size(0), -1)
 
@@ -156,37 +156,37 @@ class RandomShiftsAug(nn.Module):
 
 
 class Episode(object):
-    """Storage object for a single episode."""
-    def __init__(self, cfg, init_obs):
-        self.cfg = cfg
-        self.device = torch.device(cfg.device)
-        dtype = torch.float32 if cfg.modality == 'state' else torch.uint8
-        self.obs = torch.empty((cfg.episode_length+1, *init_obs.shape), dtype=dtype, device=self.device)
-        self.obs[0] = torch.tensor(init_obs, dtype=dtype, device=self.device)
-        self.action = torch.empty((cfg.episode_length, cfg.action_dim), dtype=torch.float32, device=self.device)
-        self.reward = torch.empty((cfg.episode_length,), dtype=torch.float32, device=self.device)
-        self.cumulative_reward = 0
-        self.done = False
-        self._idx = 0
-	
-    def __len__(self):
-        return self._idx
+	"""Storage object for a single episode."""
+	def __init__(self, cfg, init_obs):
+		self.cfg = cfg
+		self.device = torch.device(cfg.device)
+		dtype = torch.float32 if cfg.modality == 'state' else torch.uint8
+		self.obs = torch.empty((cfg.episode_length+1, *init_obs.shape), dtype=dtype, device=self.device)
+		self.obs[0] = torch.tensor(init_obs, dtype=dtype, device=self.device)
+		self.action = torch.empty((cfg.episode_length, cfg.action_dim), dtype=torch.float32, device=self.device)
+		self.reward = torch.empty((cfg.episode_length,), dtype=torch.float32, device=self.device)
+		self.cumulative_reward = 0
+		self.done = False
+		self._idx = 0
 
-    @property
-    def first(self):
-        return len(self) == 0
-	
-    def __add__(self, transition):
-        self.add(*transition)
-        return self
+	def __len__(self):
+		return self._idx
 
-    def add(self, obs, action, reward, done):
-        self.obs[self._idx+1] = torch.tensor(obs, dtype=self.obs.dtype, device=self.obs.device)
-        self.action[self._idx] = action
-        self.reward[self._idx] = reward
-        self.cumulative_reward += reward
-        self.done = done
-        self._idx += 1
+	@property
+	def first(self):
+		return len(self) == 0
+
+	def __add__(self, transition):
+		self.add(*transition)
+		return self
+
+	def add(self, obs, action, reward, done):
+		self.obs[self._idx+1] = torch.tensor(obs, dtype=self.obs.dtype, device=self.obs.device)
+		self.action[self._idx] = action
+		self.reward[self._idx] = reward
+		self.cumulative_reward += reward
+		self.done = done
+		self._idx += 1
 
 
 class ReplayBuffer():

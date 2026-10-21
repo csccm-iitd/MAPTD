@@ -36,7 +36,7 @@ def evaluate(env, agent, num_episodes, step, env_step, video):
 	episode_rewards = []
 	for i in range(num_episodes):
 		obs, done, ep_reward, t = env.reset(), False, 0, 0
-        
+
 		if video: video.init(env, enabled=(i==0))
 		while not done:
 			action = agent.plan(obs, eval_mode=True, step=step, t0=t==0)
@@ -75,15 +75,15 @@ actions_std = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 time = []
 while not done:
-    print('Case: Controlled --> Time step: {}'.format(t))
-    action, action_std, time_ = agent.plan(obs, eval_mode=True, step=0, t0=t==0)
-    obs, reward, done, _ = env.step(action.cpu().numpy())
-    frames.append(obs)
-    rewards.append(reward)
-    actions.append(action.cpu().numpy())
-    actions_std.append(action_std.cpu().numpy())
-    time.append(time_)
-    t += 1
+	print('Case: Controlled --> Time step: {}'.format(t))
+	action, action_std, time_ = agent.plan(obs, eval_mode=True, step=0, t0=t==0)
+	obs, reward, done, _ = env.step(action.cpu().numpy())
+	frames.append(obs)
+	rewards.append(reward)
+	actions.append(action.cpu().numpy())
+	actions_std.append(action_std.cpu().numpy())
+	time.append(time_)
+	t += 1
 
 Ne = 77
 xt_controlled = np.stack(( frames ))
@@ -99,10 +99,10 @@ time = np.stack((time))
 frames_true = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    print('Case: UNcontrolled --> Time step: {}'.format(t))
-    obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
-    frames_true.append(obs)
-    t += 1
+	print('Case: UNcontrolled --> Time step: {}'.format(t))
+	obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
+	frames_true.append(obs)
+	t += 1
 
 xt_uncontrolled = np.stack(( frames_true ))
 xt_ud = xt_uncontrolled[:, :Ne]
@@ -122,19 +122,19 @@ figure1, ax = plt.subplots(nrows=len(floor), ncols=2, figsize =(16,10), dpi=100)
 plt.subplots_adjust(hspace=0.35)
 
 for i in range(len(floor)):
-    ax[i,0].plot(xt_ud[:, floor[i]], color='r', label='True')
-    ax[i,0].plot(xt_cd[:, floor[i]], linestyle='--', label='Controlled')
-    if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
-    ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
-    ax[i,0].grid(True, alpha=0.25) 
-    ax[i,0].legend()
-    
-    ax[i,1].plot(xt_uv[:, floor[i]], color='r', label='True')
-    ax[i,1].plot(xt_cv[:, floor[i]], linestyle='--', label='Controlled')
-    if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
-    ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
-    ax[i,1].grid(True, alpha=0.25) 
-    ax[i,1].legend()
+	ax[i,0].plot(xt_ud[:, floor[i]], color='r', label='True')
+	ax[i,0].plot(xt_cd[:, floor[i]], linestyle='--', label='Controlled')
+	if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
+	ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
+	ax[i,0].grid(True, alpha=0.25)
+	ax[i,0].legend()
+
+	ax[i,1].plot(xt_uv[:, floor[i]], color='r', label='True')
+	ax[i,1].plot(xt_cv[:, floor[i]], linestyle='--', label='Controlled')
+	if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
+	ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
+	ax[i,1].grid(True, alpha=0.25)
+	ax[i,1].legend()
 
 ax[0,0].set_title('Displacement')
 ax[0,1].set_title('Velocity')
@@ -151,5 +151,5 @@ plt.show()
 #                                                     'rewards':rewards,
 #                                                     'actions':actions})
 
-# sp.io.savemat('results/skyscraper_tdmpc_time.mat', mdict={'time':time}) 
+# sp.io.savemat('results/skyscraper_tdmpc_time.mat', mdict={'time':time})
 

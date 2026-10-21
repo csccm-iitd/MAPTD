@@ -23,29 +23,29 @@ def make_dir(dir_path):
 
 
 def print_run(cfg, reward=None):
-    """Pretty-printing of run information. Call at start of training."""
-    prefix, color, attrs = ' '*2, 'green', ['bold']
-    def limstr(s, maxlen=32):
-        return str(s[:maxlen]) + '...' if len(str(s)) > maxlen else s
-    def pprint(k, v):
-        print(prefix + colored(f'{k.capitalize()+":":<16}', color, attrs=attrs), limstr(v))
-    kvs = [('task', cfg.task_title),
+	"""Pretty-printing of run information. Call at start of training."""
+	prefix, color, attrs = ' '*2, 'green', ['bold']
+	def limstr(s, maxlen=32):
+		return str(s[:maxlen]) + '...' if len(str(s)) > maxlen else s
+	def pprint(k, v):
+		print(prefix + colored(f'{k.capitalize()+":":<16}', color, attrs=attrs), limstr(v))
+	kvs = [('task', cfg.task_title),
 		   ('train steps', f'{int(cfg.train_steps*cfg.action_repeat):,}'),
 		   ('observations', 'x'.join([str(s) for s in cfg.obs_shape])),
 		   ('actions', cfg.action_dim),
 		   ('experiment', cfg.exp_name),
            ('Planning steps', cfg.iterations),
            ('Horizon', cfg.horizon)]
-    if reward is not None:
-        kvs.append(('episode reward', colored(str(int(reward)), 'white', attrs=['bold'])))
-    w = np.max([len(limstr(str(kv[1]))) for kv in kvs]) + 21
-    div = '-'*w
-    print(div)
-    print('Summary of the Experiment')
-    print(div)
-    for k,v in kvs:
-        pprint(k, v)
-    print(div)
+	if reward is not None:
+		kvs.append(('episode reward', colored(str(int(reward)), 'white', attrs=['bold'])))
+	w = np.max([len(limstr(str(kv[1]))) for kv in kvs]) + 21
+	div = '-'*w
+	print(div)
+	print('Summary of the Experiment')
+	print(div)
+	for k,v in kvs:
+		pprint(k, v)
+	print(div)
 
 
 def cfg_to_group(cfg, return_list=False):

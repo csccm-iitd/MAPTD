@@ -3,8 +3,8 @@ task: structure-Skyscraper_rom
 modality: "state"
 action_repeat: 4
 discount: 0.99
-episode_length: 400/${action_repeat}
-train_steps: 80000/${action_repeat}
+episode_length: 4000/${action_repeat}
+train_steps: 200000/${action_repeat}
 
 # planning
 iterations: 6
@@ -37,7 +37,7 @@ tau: 0.01
 # architecture
 enc_dim: 256
 mlp_dim: 512
-latent_dim: 50
+latent_dim: 64
 
 # wandb (insert your own)
 use_wandb: false
@@ -47,7 +47,7 @@ wandb_entity: none
 # misc
 seed: 1
 exp_name: default
-eval_freq: 4000
+eval_freq: 8000
 eval_episodes: 10
 deviceid: 0
 save_video: false

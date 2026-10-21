@@ -21,13 +21,13 @@ import matplotlib.animation as animation
 import env_beam
 import utils_mpc
 
-plt.rcParams['font.family'] = 'Times New Roman' 
+plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 16
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 # %%
 """ Generating system response """
-# The time parameters: 
+# The time parameters:
 T, dt = 5, 1e-2
 Nt = int(T/dt)
 env = env_beam.EulerBeam(T=T, dt=dt, forced=True)
@@ -41,9 +41,9 @@ plt.subplots_adjust(hspace=0.3)
 
 label = ['$u(t)$', '$\dot{u}(t)$', '$\ddot{u}(t)$']
 for i in range(3):
-    im = ax[i].imshow(xt[i, ::2].T, extent=[0,env.L,0,T], cmap='jet', origin='lower', aspect='auto'); 
-    ax[i].set_ylabel(label[i]); 
-    plt.colorbar(im, ax=ax[i], pad=0.01)
+	im = ax[i].imshow(xt[i, ::2].T, extent=[0,env.L,0,T], cmap='jet', origin='lower', aspect='auto');
+	ax[i].set_ylabel(label[i]);
+	plt.colorbar(im, ax=ax[i], pad=0.01)
 plt.show()
 
 # %% Run for different prediction horizon's:
@@ -57,9 +57,9 @@ Force  = env.force_fun
 
 D0n, V0n, A0n = env.reset()             # Initial condition
 rHistory = env.D_ref
-uopt0  = np.zeros(env.phorizon * env.action_dim)  
+uopt0  = np.zeros(env.phorizon * env.action_dim)
 bounds = Bounds(env.LB, env.UB)
-   
+
 xHistory = D0n                                # Stores state history
 xdHistory = V0n                               # Stores state history
 xddHistory = A0n                              # Stores state history
@@ -69,34 +69,34 @@ tHistory = 0                    # Stores time history
 
 time = []
 for run in range(int(CT/Ts) - 1):
-    t1 = default_timer()
-    if run*Ts > start:            # Turn control on
-        if run*Ts == start+Ts:
-            print('\n~~~~~~~~~~~ Control is activated ~~~~~~~~~~~\n')
-        
-        OBJFUN = lambda u: env.cost(action=u, states=(D0n, V0n, A0n), t=run,
+	t1 = default_timer()
+	if run*Ts > start:            # Turn control on
+		if run*Ts == start+Ts:
+			print('\n~~~~~~~~~~~ Control is activated ~~~~~~~~~~~\n')
+
+		OBJFUN = lambda u: env.cost(action=u, states=(D0n, V0n, A0n), t=run,
                                     old_action=uopt0[:env.action_dim])
-        res = minimize(OBJFUN, uopt0, method='SLSQP', jac="2-point", bounds=bounds)
-        uopt0 = res.x
-    else:
-        uopt0 = np.zeros(env.phorizon * env.action_dim)
-    
-    D0n, V0n, A0n = env.step(states=(D0n,V0n,A0n), t=run, action=uopt0[:env.action_dim])
-    
-    error_d, error_v = utils_mpc.L2norm(D0n[::2], V0n[::2], rHistory)
-    
-    t2 = default_timer()
-    time.append(t2-t1)
-    print('Iteration-{}, Time-{:0.4f}, Error: Displacement: {:0.4f}, Velocity: {:0.4f}'.format(
+		res = minimize(OBJFUN, uopt0, method='SLSQP', jac="2-point", bounds=bounds)
+		uopt0 = res.x
+	else:
+		uopt0 = np.zeros(env.phorizon * env.action_dim)
+
+	D0n, V0n, A0n = env.step(states=(D0n,V0n,A0n), t=run, action=uopt0[:env.action_dim])
+
+	error_d, error_v = utils_mpc.L2norm(D0n[::2], V0n[::2], rHistory)
+
+	t2 = default_timer()
+	time.append(t2-t1)
+	print('Iteration-{}, Time-{:0.4f}, Error: Displacement: {:0.4f}, Velocity: {:0.4f}'.format(
             run, t2-t1, error_d, error_v))
-    
-    # Store the history:
-    xHistory = np.column_stack((xHistory, D0n))
-    xdHistory = np.column_stack((xdHistory, V0n))
-    xddHistory = np.column_stack((xddHistory, A0n))
-    uHistory = np.column_stack((uHistory, utils_mpc.store_action(uopt0[:env.action_dim], env.Ne) ))
-    fHistory = np.column_stack((fHistory, utils_mpc.store_force(Force, run*dt, env.L, env.Ne) ))
-    tHistory = np.append(tHistory, run*Ts)
+
+	# Store the history:
+	xHistory = np.column_stack((xHistory, D0n))
+	xdHistory = np.column_stack((xdHistory, V0n))
+	xddHistory = np.column_stack((xddHistory, A0n))
+	uHistory = np.column_stack((uHistory, utils_mpc.store_action(uopt0[:env.action_dim], env.Ne) ))
+	fHistory = np.column_stack((fHistory, utils_mpc.store_force(Force, run*dt, env.L, env.Ne) ))
+	tHistory = np.append(tHistory, run*Ts)
 
 tT = default_timer()
 print('-- Run Complete -- Total Time-{}min.'.format((tT-t0)/60))
@@ -112,10 +112,10 @@ plt.subplots_adjust(hspace=0.3)
 
 label = ['$u(t)$', '$\dot{u}(t)$', '$\ddot{u}(t)$']
 for i in range(3):
-    im = ax[i].imshow(xtHistory[i, ::2, :].T, extent=[0,1,0,T], cmap='jet', origin='lower', aspect='auto'); 
-    ax[i].set_ylabel(label[i]); 
-    ax[i].set_xlabel('Space')
-    plt.colorbar(im, ax=ax[i], pad=0.01)
+	im = ax[i].imshow(xtHistory[i, ::2, :].T, extent=[0,1,0,T], cmap='jet', origin='lower', aspect='auto');
+	ax[i].set_ylabel(label[i]);
+	ax[i].set_xlabel('Space')
+	plt.colorbar(im, ax=ax[i], pad=0.01)
 plt.show()
 
 # fig2.savefig('Figures/Beam_control_contour.png', format='png', dpi=300, bbox_inches='tight')
@@ -143,7 +143,7 @@ plt.show()
 #                                            'tHistory':tHistory,
 #                                            'rHistory':rHistory,
 #                                            'time':(tT-t0)})
-sio.savemat('results/beam_mpc_time.mat', mdict={'time':time}) 
+sio.savemat('results/beam_mpc_time.mat', mdict={'time':time})
 
 # %%
 # # 2D animation:
@@ -157,7 +157,7 @@ sio.savemat('results/beam_mpc_time.mat', mdict={'time':time})
 #     ax.set_xlabel('Time (s)', labelpad = 20, fontweight='bold');
 #     ax.set_ylabel('u(x,t)', labelpad = 10, fontweight='bold')
 #     ax.set_title('EB Beam: $(u_{tt} = (EI)/(\mu) u_{xxxx})$\nTime: %0.2f' % ((k+1)*dt),
-#                  fontweight='bold'); 
+#                  fontweight='bold');
 #     # ax.set_ylim([np.floor(np.min(xHistory)), np.ceil(np.max(xHistory))])
 #     ax.set_ylim([-1*np.ceil(np.max(xHistory)), np.ceil(np.max(xHistory))])
 #     ax.plot(x,ref, '--', color='r', label='UB')
@@ -168,7 +168,7 @@ sio.savemat('results/beam_mpc_time.mat', mdict={'time':time})
 
 # def animate_2d(k):
 #     update(xgrid, xHistory[:,k], xref, k)
-    
+
 # anim = animation.FuncAnimation(fig=fig8, func=animate_2d, interval=1, frames=nframes, repeat=False)
 # anim.save("Beam_control_2d.mp4", writer='ffmpeg', fps=30)
 
@@ -190,11 +190,11 @@ sio.savemat('results/beam_mpc_time.mat', mdict={'time':time})
 #     ax.set_ylabel('Space ($x$)', labelpad = 10, fontweight='bold');
 #     ax.set_zlabel('u(x,t)', fontweight='bold')
 #     ax.set_title('EB Beam: $(u_{tt} = (EI)/(\mu) u_{xxxx})$\nTime: %0.2f' % ((k+1)*dt),
-#                  fontweight='bold', y=1); 
+#                  fontweight='bold', y=1);
 
 # def animate(k):
 #     update_3d(xxr[:, :k], ttr[:, :k], xur[:, :k], k)
-    
+
 # anim = animation.FuncAnimation(fig=fig9, func=animate, interval=1, frames=xxr.shape[-1], repeat=False)
 # anim.save("Beam_control_3d.mp4", writer='ffmpeg', fps=30)
 

@@ -6,6 +6,7 @@ Training script for TDMPC agent of the Skyscraper
 import warnings
 warnings.filterwarnings('ignore')
 import os
+import lxml.etree
 os.environ['MKL_SERVICE_FORCE_INTEL'] = '1'
 os.environ['MUJOCO_GL'] = 'egl'
 import sys
@@ -37,7 +38,7 @@ def evaluate(env, agent, num_episodes, step, env_step, video):
 	episode_rewards = []
 	for i in range(num_episodes):
 		obs, done, ep_reward, t = env.reset(), False, 0, 0
-        
+
 		if video: video.init(env, enabled=(i==0))
 		while not done:
 			action = agent.plan(obs, eval_mode=True, step=step, t0=t==0)
@@ -65,44 +66,44 @@ env, agent, buffer = make_env(cfg), TDMPC(cfg), ReplayBuffer(cfg)
 L = logger.Logger(work_dir, cfg)
 episode_idx, start_time = 0, time.time()
 for step in range(0, cfg.train_steps+cfg.episode_length, cfg.episode_length):
-    print('Step', step)
+	print('Step', step)
 
-    # Collect trajectory
-    obs = env.reset()    
-    episode = Episode(cfg, obs)
-    while not episode.done:
-        action = agent.plan(obs, step=step, t0=episode.first)
-        # print('Action', action.shape)
-        
-        obs, reward, done, _ = env.step(action.cpu().numpy())
-        
-        episode += (obs, action, reward, done)
-    assert len(episode) == cfg.episode_length
-    buffer += episode
-    
-    # Update model
-    train_metrics = {}
-    if step >= cfg.seed_steps:
-    	num_updates = cfg.seed_steps if step == cfg.seed_steps else cfg.episode_length
-    	for i in range(num_updates):
-    		train_metrics.update(agent.update(buffer, step+i))
-    
-    # Log training episode
-    episode_idx += 1
-    env_step = int(step*cfg.action_repeat)
-    common_metrics = {
+	# Collect trajectory
+	obs = env.reset()
+	episode = Episode(cfg, obs)
+	while not episode.done:
+		action = agent.plan(obs, step=step, t0=episode.first)
+		# print('Action', action.shape)
+
+		obs, reward, done, _ = env.step(action.cpu().numpy())
+
+		episode += (obs, action, reward, done)
+	assert len(episode) == cfg.episode_length
+	buffer += episode
+
+	# Update model
+	train_metrics = {}
+	if step >= cfg.seed_steps:
+		num_updates = cfg.seed_steps if step == cfg.seed_steps else cfg.episode_length
+		for i in range(num_updates):
+			train_metrics.update(agent.update(buffer, step+i))
+
+	# Log training episode
+	episode_idx += 1
+	env_step = int(step*cfg.action_repeat)
+	common_metrics = {
     	'episode': episode_idx,
     	'step': step,
     	'env_step': env_step,
     	'total_time': time.time() - start_time,
     	'episode_reward': episode.cumulative_reward}
-    train_metrics.update(common_metrics)
-    L.log(train_metrics, category='train')
-    
-    # Evaluate agent periodically
-    if env_step % cfg.eval_freq == 0:
-    	common_metrics['episode_reward'] = evaluate(env, agent, cfg.eval_episodes, step, env_step, L.video)
-    	L.log(common_metrics, category='eval')
+	train_metrics.update(common_metrics)
+	L.log(train_metrics, category='train')
+
+	# Evaluate agent periodically
+	if env_step % cfg.eval_freq == 0:
+		common_metrics['episode_reward'] = evaluate(env, agent, cfg.eval_episodes, step, env_step, L.video)
+		L.log(common_metrics, category='eval')
 
 L.finish(agent)
 print('Training completed successfully')
@@ -111,18 +112,19 @@ print('Training completed successfully')
 # -------------------------------------------------
 # Test for one sample
 # -------------------------------------------------
+print('Test Case: Controlled')
 frames = []
 rewards = []
 actions = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    action = agent.plan(obs, eval_mode=True, step=step, t0=t==0)
-    obs, reward, done, _ = env.step(action.cpu().numpy())
-    print('Case: Controlled --> Time step: {}, Action: {}'.format(t,action.cpu().numpy()))
-    frames.append(obs)
-    rewards.append(reward)
-    actions.append(action.cpu().numpy())
-    t += 1
+	# print('Case: Controlled --> Time step: {}'.format(t))
+	action = agent.plan(obs, eval_mode=True, step=step, t0=t==0)
+	obs, reward, done, _ = env.step(action.cpu().numpy())
+	frames.append(obs)
+	rewards.append(reward)
+	actions.append(action.cpu().numpy())
+	t += 1
 
 Ne = 77
 xt_controlled = np.stack(( frames ))
@@ -131,13 +133,14 @@ xt_cv = xt_controlled[:, Ne:]
 rewards = np.stack(( rewards ))
 actions = np.stack(( actions ))
 
+print('Test Case: UNcontrolled')
 frames_true = []
 obs, done, ep_reward, t = env.reset(), False, 0, 0
 while not done:
-    obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
-    print('Case: UNcontrolled --> Time step: {}'.format(t))
-    frames_true.append(obs)
-    t += 1
+	# print('Case: UNcontrolled --> Time step: {}'.format(t))
+	obs, reward, done, _ = env.step(np.zeros(action.cpu().numpy().shape))
+	frames_true.append(obs)
+	t += 1
 
 xt_uncontrolled = np.stack(( frames_true ))
 xt_ud = xt_uncontrolled[:, :Ne]
@@ -151,26 +154,26 @@ plt.rcParams['font.size'] = 14
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 floor = [4,13,17,22]
-    
+
 t = np.arange(0,1,0.01)
 
 figure1, ax = plt.subplots(nrows=len(floor), ncols=2, figsize =(16,10), dpi=100)
 plt.subplots_adjust(hspace=0.35)
 
 for i in range(len(floor)):
-    ax[i,0].plot(xt_ud[:, floor[i]], color='r', label='True')
-    ax[i,0].plot(xt_cd[:, floor[i]], linestyle='--', label='Controlled')
-    if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
-    ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
-    ax[i,0].grid(True, alpha=0.25) 
-    ax[i,0].legend()
-    
-    ax[i,1].plot(xt_uv[:, floor[i]], color='r', label='True')
-    ax[i,1].plot(xt_cv[:, floor[i]], linestyle='--', label='Controlled')
-    if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
-    ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
-    ax[i,1].grid(True, alpha=0.25) 
-    ax[i,1].legend()
+	ax[i,0].plot(xt_ud[:, floor[i]], color='r', label='True')
+	ax[i,0].plot(xt_cd[:, floor[i]], linestyle='--', label='Controlled')
+	if i == len(floor)-1: ax[i,0].set_xlabel('Time (Sec)')
+	ax[i,0].set_ylabel('DOF-{}'.format(floor[i]))
+	ax[i,0].grid(True, alpha=0.25)
+	ax[i,0].legend()
+
+	ax[i,1].plot(xt_uv[:, floor[i]], color='r', label='True')
+	ax[i,1].plot(xt_cv[:, floor[i]], linestyle='--', label='Controlled')
+	if i == len(floor)-1: ax[i,1].set_xlabel('Time (Sec)')
+	ax[i,1].set_ylabel('DOF-{}'.format(floor[i]))
+	ax[i,1].grid(True, alpha=0.25)
+	ax[i,1].legend()
 
 ax[0,0].set_title('Displacement')
 ax[0,1].set_title('Velocity')
